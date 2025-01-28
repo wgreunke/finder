@@ -154,6 +154,89 @@ const investmentLocations = [
   }
 ];
 
+
+//This is at the top of the page and will be used to set filter and finance options
+function FilterAndFinanceOptions() {
+//This is carries the filter and finance options that will be pulled in at the top of the page
+const filterAndFinanceData = {
+  "filterOptions": {
+    "defaultLowerPrice": 500000,
+    "defaultUpperPrice": 1000000,
+    "propertyType": "apartment",
+    "propertyOptions": ["apartment", "house", "commercial"]
+  },
+  "financialOptions": {
+    "defaultDownPayment": 100000,
+    "defaultDownPaymentPercentage": 20,
+    "defaultDownPaymentType": ["cash", "percentage"],
+    "currencyOptions": ["USD", "EUR", "GBP"],
+    "interestRate": {
+    "defaultInterestRate": 3.5,
+    "defaultBoundingBoxMiles": 1,
+     }
+  },
+  "displayOptions": {
+    "defaultSortOrder": "ascending",
+    "sortOrderOptions": ["ascending", "descending"],
+    "itemsPerPage": 10,
+    "itemsPerPageOptions": [10, 20, 50, 100],
+  }
+}
+
+const [downPayment, setDownPayment] = React.useState(filterAndFinanceData.financialOptions.defaultDownPayment);
+
+  return (
+    <div style={{ textAlign: 'left' }}>
+      <text>Im looking for a property:</text>
+{/*Add a text box for lower and upper price range*/}
+<input 
+  type="text" 
+  placeholder="Lower Price" 
+  style={{ margin: '5px' }} 
+  value={new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(filterAndFinanceData.filterOptions.defaultLowerPrice)} 
+/>
+<input 
+  type="text" 
+  placeholder="Upper Price" 
+  style={{ margin: '5px' }} 
+  value={new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(filterAndFinanceData.filterOptions.defaultUpperPrice)} 
+/>
+
+
+{/*Add a dropdown for property type*/}
+<text>Property Type: </text>
+<select style={{ margin: '5px' }} value={filterAndFinanceData.filterOptions.propertyType}>
+  <option value="apartment">Apartment</option>
+  <option value="house">House</option>
+  <option value="commercial">Commercial</option>
+</select>
+<br></br>
+{/*Add a textbox for down payment amount.  Show the amount as currency with commas and dollar sign.   */}
+<text>Down Payment Amount: </text>
+
+<input 
+  type="text" 
+  placeholder="Down Payment Amount" 
+  style={{ margin: '5px' }} 
+  value={new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(downPayment)} 
+  onChange={(e) => setDownPayment(parseInt(e.target.value.replace(/[^0-9]/g, ''), 10) || 0)} 
+/>
+
+{/*Add a textbox for interest rate*/}
+<text>Interest Rate (%): </text>
+<input type="text" placeholder="Interest Rate" style={{ margin: '5px' }} value={filterAndFinanceData.financialOptions.defaultInterestRate} />
+
+{/*Add a textbox for bounding box miles*/}
+<text>Bounding Box Miles: </text>
+<input type="text" placeholder="Bounding Box Miles" style={{ margin: '5px' }} value={filterAndFinanceData.financialOptions.defaultBoundingBoxMiles} />
+<br></br>
+
+{/*Add a button to submit the filter and finance options*/}
+<button style={{ margin: '5px' }}>Submit</button>
+    </div>
+  );
+}
+
 function rentalLister(rentalProperties) {
   return (
     <div style={{ 
@@ -194,29 +277,48 @@ function SideBar({ selectedLocation }) {
   );
 }
 
-function LeafletMap({ investmentLocations, rentalProperties, onLocationSelect }) {
+function LeafletMap({ investmentLocations, rentalProperties, onLocationSelect, boundingBoxMiles }) {
+  const [boundingBox, setBoundingBox] = React.useState(null);
+
+  const drawBoundingBox = (location) => {
+    const lat = location.coordinates[0];
+    const lng = location.coordinates[1];
+    const halfWidth = boundingBoxMiles / 69; // Approximate conversion from miles to degrees
+    const halfHeight = boundingBoxMiles / 69; // Approximate conversion from miles to degrees
+
+    setBoundingBox([
+      [lat + halfHeight, lng - halfWidth], // Northeast corner
+      [lat - halfHeight, lng + halfWidth]  // Southwest corner
+    ]);
+  };
+
   return (
     <MapContainer 
       center={[37.3785, -122.0311]}
       zoom={12} 
-      style={{ height: '100vh', width: '100%' }}
+      style={{ height: '700px', width: '1300px' }}
     >
       <TileLayer 
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" 
       />
       {investmentLocations.map((location, index) => (
-        <Marker 
-          key={index} 
-          position={location.coordinates}
-          eventHandlers={{
-            click: () => onLocationSelect(location)
-          }}
-        >
-          <Popup>
-            {location.name}
-          </Popup>
-        </Marker>
+        location.coordinates ? ( // Check if coordinates exist
+          <Marker 
+            key={index} 
+            position={location.coordinates}
+            eventHandlers={{
+              click: () => {
+                onLocationSelect(location);
+                drawBoundingBox(location);
+              }
+            }}
+          >
+            <Popup>
+              {location.name}
+            </Popup>
+          </Marker>
+        ) : null // Skip rendering if coordinates are missing
       ))}
       {rentalProperties.map((property, index) => (
         <Marker key={index} position={property.coordinates} icon={RedIcon}>
@@ -225,6 +327,9 @@ function LeafletMap({ investmentLocations, rentalProperties, onLocationSelect })
           </Popup>
         </Marker>
       ))}
+      {boundingBox && (
+        <L.Rectangle bounds={boundingBox} color="blue" />
+      )}
     </MapContainer>
   );
 }
@@ -233,12 +338,15 @@ function App() {
   const [selectedLocation, setSelectedLocation] = React.useState(null);
 
   return (
-    <div className="App" style={{ display: 'flex' }}>
-      <div style={{ flex: '1' }}>
+    <div className="App" style={{ display: 'flex', flexDirection: 'row' }}>
+      <div style={{ flex: '1', margin: '10px' }}>
+        <strong>Investment Property Finder</strong><br></br>
+        <FilterAndFinanceOptions />
         <LeafletMap 
           investmentLocations={investmentLocations} 
           rentalProperties={rentalProperties}
           onLocationSelect={setSelectedLocation}
+          boundingBoxMiles={1}
         />
       </div>
       <div style={{ width: '300px' }}>
