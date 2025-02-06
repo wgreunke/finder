@@ -27,6 +27,15 @@ let RedIcon = L.icon({
   popupAnchor: [1, -34]
 });
 
+// Add blue marker icon for investment locations
+let BlueIcon = L.icon({
+  iconUrl: 'https://example.com/path/to/blue-icon.png', // Replace with the actual URL for the blue icon
+  shadowUrl: iconShadow,
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34]
+});
+
 L.Marker.prototype.options.icon = DefaultIcon;
 
 //Make a json content that has coordinates of locations in santa clara
@@ -283,6 +292,10 @@ function SideBar({ selectedLocation }) {
 
 function LeafletMap({ investmentLocations = [], rentalProperties = [], onLocationSelect, boundingBoxMiles }) {
   const [boundingBox, setBoundingBox] = React.useState(null);
+  const [boxUpperLeft, setBoxUpperLeft] = React.useState([37.3785, -122.0411]);
+  const [boxLowerRight, setBoxLowerRight] = React.useState([37.3960, -122.0300]);
+
+
 
   const drawBoundingBox = (location) => {
     if (!location || !location.coordinates) {
@@ -292,15 +305,17 @@ function LeafletMap({ investmentLocations = [], rentalProperties = [], onLocatio
   
     const [lat, lng] = location.coordinates; // Ensure this is the correct order
   
+
+    
     console.log("Drawing bounding box for:", lat, lng);
   
-    const halfWidth = (boundingBoxMiles || 1) / 69;
-    const halfHeight = (boundingBoxMiles || 1) / 69;
+    const halfWidth = (boundingBoxMiles) / 69;
+    const halfHeight = (boundingBoxMiles) / 69;
   
-    setBoundingBox([
-      [lat - halfHeight, lng - halfWidth], // Southwest corner
-      [lat + halfHeight, lng + halfWidth]  // Northeast corner
-    ]);
+
+    setBoxUpperLeft([lat - halfHeight, lng - halfWidth]);
+    setBoxLowerRight([lat + halfHeight, lng + halfWidth]);
+
   };
 
   return (
@@ -318,10 +333,17 @@ function LeafletMap({ investmentLocations = [], rentalProperties = [], onLocatio
           <Marker 
             key={index} 
             position={location.coordinates}
+            icon={L.icon({ // Use a blue icon similar to RedIcon
+              iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png', // URL for blue icon
+              shadowUrl: iconShadow,
+              iconSize: [25, 41],
+              iconAnchor: [12, 41],
+              popupAnchor: [1, -34]
+            })}
             eventHandlers={{
               click: () => {
                 onLocationSelect(location);
-                drawBoundingBox(location); // This will now use dummy coordinates if needed
+                drawBoundingBox(location);
               }
             }}
           >
@@ -338,9 +360,17 @@ function LeafletMap({ investmentLocations = [], rentalProperties = [], onLocatio
           </Popup>
         </Marker>
       ))}
-      {boundingBox && (
-        <L.Rectangle bounds={boundingBox} color="blue" />
-      )}
+      <Rectangle 
+        bounds={[
+          boxUpperLeft, // Upper left corner
+          boxLowerRight // Lower right corner (adjusted for visibility)
+        ]}
+
+        pathOptions={{ 
+          color: 'blue', // Set the rectangle color to blue
+          fillOpacity: 0 // Make the inside of the rectangle clear
+        }} 
+      />
     </MapContainer>
   );
 }
