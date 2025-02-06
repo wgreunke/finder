@@ -1,4 +1,3 @@
-import logo from './logo.svg';
 import './App.css';
 import { MapContainer, TileLayer, Marker, Popup, Rectangle } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -27,14 +26,7 @@ let RedIcon = L.icon({
   popupAnchor: [1, -34]
 });
 
-// Add blue marker icon for investment locations
-let BlueIcon = L.icon({
-  iconUrl: 'https://example.com/path/to/blue-icon.png', // Replace with the actual URL for the blue icon
-  shadowUrl: iconShadow,
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34]
-});
+
 
 L.Marker.prototype.options.icon = DefaultIcon;
 
@@ -196,6 +188,7 @@ const filterAndFinanceData = {
 }
 
 const [downPayment, setDownPayment] = React.useState(filterAndFinanceData.financialOptions.defaultDownPayment);
+const [propertyType, setPropertyType] = React.useState(filterAndFinanceData.filterOptions.propertyType);
 
   return (
     <div style={{ textAlign: 'left' }}>
@@ -219,10 +212,13 @@ const [downPayment, setDownPayment] = React.useState(filterAndFinanceData.financ
 
 {/*Add a dropdown for property type*/}
 <p>Property Type: </p>
-<select style={{ margin: '5px' }} value={filterAndFinanceData.filterOptions.propertyType}>
+<select 
+  style={{ margin: '5px' }} 
+  value={propertyType} 
+  onChange={(e) => setPropertyType(e.target.value)}
+>
   <option value="apartment">Apartment</option>
   <option value="house">House</option>
-
   <option value="commercial">Commercial</option>
 </select>
 <br></br>
@@ -240,13 +236,25 @@ const [downPayment, setDownPayment] = React.useState(filterAndFinanceData.financ
 
 {/*Add a textbox for interest rate*/}
 <p>Interest Rate (%): </p>
-<input type="text" placeholder="Interest Rate" style={{ margin: '5px' }} value={filterAndFinanceData.financialOptions.defaultInterestRate} />
+<input 
+  type="text" 
+  placeholder="Interest Rate" 
+  style={{ margin: '5px' }} 
+  value={filterAndFinanceData.financialOptions.defaultInterestRate} 
+  onChange={(e) => {/* Handle change here if needed */}}
+/>
 
 
 
 {/*Add a textbox for bounding box miles*/}
 <p>Bounding Box Miles: </p>
-<input type="text" placeholder="Bounding Box Miles" style={{ margin: '5px' }} value={filterAndFinanceData.financialOptions.defaultBoundingBoxMiles} />
+<input 
+  type="text" 
+  placeholder="Bounding Box Miles" 
+  style={{ margin: '5px' }} 
+  value={filterAndFinanceData.financialOptions.defaultBoundingBoxMiles} 
+  onChange={(e) => {/* Handle change here if needed */}}
+/>
 <br></br>
 
 
@@ -276,7 +284,7 @@ function rentalLister(rentalProperties) {
 }
 
 function SideBar({ selectedLocation, filteredRentalProperties = [], boundingBoxMiles }) {
-//Break out the location into the bounding box so it can be used in a filter.
+  // Break out the location into the bounding box so it can be used in a filter.
 
   return (
     <div className="sidebar" style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -291,10 +299,8 @@ function SideBar({ selectedLocation, filteredRentalProperties = [], boundingBoxM
           <div>
             <h3>Selected Location</h3>
             <strong>{selectedLocation.name}</strong>
-            <p><br></br>{selectedLocation.coordinates}</p>
+            <p><br></br>{selectedLocation.coordinates.join(', ')}</p> {/* Display coordinates */}
           </div>
-
-
         )}
       </div>
       {rentalLister(filteredRentalProperties)}
@@ -302,33 +308,11 @@ function SideBar({ selectedLocation, filteredRentalProperties = [], boundingBoxM
   );
 }
 
-function LeafletMap({ investmentLocations = [], rentalProperties = [], onLocationSelect, boundingBoxMiles, updateFilteredRentalProperties }) {
-  const [boundingBox, setBoundingBox] = React.useState(null);
-  const [boxUpperLeft, setBoxUpperLeft] = React.useState([37.3785, -122.0411]);
-  const [boxLowerRight, setBoxLowerRight] = React.useState([37.3960, -122.0300]);
+function LeafletMap({ investmentLocations = [], rentalProperties = [], onLocationSelect, updateFilteredRentalProperties, latMax, latMin, lonMax, lonMin, updateBoundingBox }) {
 
 
 
-  const drawBoundingBox = (boxCenter) => {
-    if (!boxCenter || !boxCenter.coordinates) {
-      console.error("Invalid location or coordinates:", boxCenter);
-      return;
-
-    }
   
-    const [lat, lng] = boxCenter.coordinates; // Ensure this is the correct order
-    console.log("Drawing bounding box for:", lat, lng);
-  
-    const boxHalfWidth = (boundingBoxMiles) / 69;
-    const boxHalfHeight = (boundingBoxMiles) / 69;
-  
-    setBoxUpperLeft([lat - boxHalfHeight, lng - boxHalfWidth]);
-    setBoxLowerRight([lat + boxHalfHeight, lng + boxHalfWidth]);
-
-    // Call updateFilteredRentalProperties when a location is selected
-    updateFilteredRentalProperties(boxCenter, rentalProperties, boundingBoxMiles);
-  };
-
   return (
     <MapContainer 
       center={[37.3785, -122.0311]}
@@ -354,8 +338,8 @@ function LeafletMap({ investmentLocations = [], rentalProperties = [], onLocatio
             eventHandlers={{
               click: () => {
                 onLocationSelect(location);
-                drawBoundingBox(location);
-                updateFilteredRentalProperties(location, rentalProperties, boundingBoxMiles);
+                updateBoundingBox(location);
+                updateFilteredRentalProperties(location, rentalProperties, latMax, latMin, lonMax, lonMin);
               }
             }}
           >
@@ -374,9 +358,10 @@ function LeafletMap({ investmentLocations = [], rentalProperties = [], onLocatio
       ))}
       <Rectangle 
         bounds={[
-          boxUpperLeft, // Upper left corner
-          boxLowerRight // Lower right corner (adjusted for visibility)
+          [latMax, lonMin], // Upper left corner
+          [latMin, lonMax] // Lower right corner (adjusted for visibility)
         ]}
+
 
         pathOptions={{ 
           color: 'blue', // Set the rectangle color to blue
@@ -390,17 +375,30 @@ function LeafletMap({ investmentLocations = [], rentalProperties = [], onLocatio
 //************************ Main App Component  ***************************************************
 
 function App() {
+  const mapCenter = [37.3785, -122.0311];  //This is the center of the map on startup
   const [selectedLocation, setSelectedLocation] = React.useState(null);
-  const [boundingBoxMiles, setBoundingBoxMiles] = React.useState(1);
+  const [boundingBoxMiles, setBoundingBoxMiles] = React.useState(1); 
   const [filteredRentalProperties, setFilteredRentalProperties] = React.useState(rentalProperties);
+  const [latMax, setLatMax] = React.useState(mapCenter[0] + (boundingBoxMiles / 69));
+  const [latMin, setLatMin] = React.useState(mapCenter[0] - (boundingBoxMiles / 69));
+  const [lonMax, setLonMax] = React.useState(mapCenter[1] + (boundingBoxMiles / 53.0));
+  const [lonMin, setLonMin] = React.useState(mapCenter[1] - (boundingBoxMiles / 53.0));
 
-  const updateFilteredRentalProperties = (selectedLocation, rentalProperties, boundingBoxMiles) => {
-    const latMax = selectedLocation.coordinates[0] + boundingBoxMiles;
-    const latMin = selectedLocation.coordinates[0] - boundingBoxMiles;
-    const lonMax = selectedLocation.coordinates[1] + boundingBoxMiles;
-    const lonMin = selectedLocation.coordinates[1] - boundingBoxMiles;
+  const updateBoundingBox = (selectedLocation) => {
+    setLatMax(selectedLocation.coordinates[0] + (boundingBoxMiles / 69));
+    setLatMin(selectedLocation.coordinates[0] - (boundingBoxMiles / 69));
+    setLonMax(selectedLocation.coordinates[1] + (boundingBoxMiles / 53.0));
+    setLonMin(selectedLocation.coordinates[1] - (boundingBoxMiles / 53.0));
+  }
 
-    // Filter the rental properties that are within the bounding box.
+  const handleLocationSelect = (selectedLocation) => {
+    // Update bounding box
+    setLatMax(selectedLocation.coordinates[0] + (boundingBoxMiles / 69));
+    setLatMin(selectedLocation.coordinates[0] - (boundingBoxMiles / 69));
+    setLonMax(selectedLocation.coordinates[1] + (boundingBoxMiles / 53.0));
+    setLonMin(selectedLocation.coordinates[1] - (boundingBoxMiles / 53.0));
+
+    // Filter rental properties
     const filteredProperties = rentalProperties.filter(property => {
       const propertyLat = property.coordinates[0];
       const propertyLon = property.coordinates[1];
@@ -408,6 +406,22 @@ function App() {
     });
 
     setFilteredRentalProperties(filteredProperties); // Update the state with filtered properties
+    console.log("filteredProperties: from handleLocationSelect", filteredProperties);
+  }
+
+  const updateFilteredRentalProperties = (selectedLocation, rentalProperties, latMax, latMin, lonMax, lonMin) => {
+    console.log("latMin:", latMin, "latMax:", latMax, "lonMin:", lonMin, "lonMax:", lonMax); // Log the bounding box values
+    // Filter the rental properties that are within the bounding box.
+
+
+    const filteredProperties = rentalProperties.filter(property => {
+      const propertyLat = property.coordinates[0];
+      const propertyLon = property.coordinates[1];
+      return propertyLat >= latMin && propertyLat <= latMax && propertyLon >= lonMin && propertyLon <= lonMax;
+    });
+
+    setFilteredRentalProperties(filteredProperties); // Update the state with filtered properties
+    console.log("filteredProperties: from updateFilteredRentalProperties", filteredProperties);
   };
 
   return (
@@ -418,16 +432,18 @@ function App() {
         <LeafletMap 
           investmentLocations={investmentLocations} 
           rentalProperties={rentalProperties}
-          onLocationSelect={(location) => {
-            setSelectedLocation(location);
-            updateFilteredRentalProperties(location, rentalProperties, boundingBoxMiles);
-          }}
-          boundingBoxMiles={boundingBoxMiles}
+          onLocationSelect={handleLocationSelect}
           updateFilteredRentalProperties={updateFilteredRentalProperties}
+          latMax={latMax}
+          latMin={latMin}
+          lonMax={lonMax}
+          lonMin={lonMin}
+          updateBoundingBox={updateBoundingBox}
         />
       </div>
       <div style={{ width: '300px' }}>
-        <SideBar selectedLocation={selectedLocation} rentalProperties={filteredRentalProperties} boundingBoxMiles={boundingBoxMiles} />
+        <SideBar selectedLocation={selectedLocation} rentalProperties={filteredRentalProperties} latMax={latMax} latMin={latMin} lonMax={lonMax} lonMin={lonMin} />
+
       </div>
     </div>
   );
