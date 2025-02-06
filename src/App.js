@@ -274,7 +274,7 @@ function rentalLister(filteredRentalProperties) {
     }}>
       <h2>Rental Properties</h2>
       <p>Find the best rental properties in Sunnyvale</p>
-      {rentalProperties.map((property, index) => (
+      {filteredRentalProperties.map((property, index) => (
         <div key={index}>
           <strong>{property.name}:</strong> <text><br></br>{property.monthly_rent}</text>
         </div>
