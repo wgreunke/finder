@@ -1,15 +1,18 @@
 import logo from './logo.svg';
 import './App.css';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Rectangle } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
-import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 import React from 'react';
 
+
+
+//To start cmd: npm start
+
 // Fix for default marker icon
 let DefaultIcon = L.icon({
-  iconUrl: icon,
+  iconUrl: 'https://example.com/path/to/default-icon.png',
   shadowUrl: iconShadow,
   iconSize: [25, 41],
   iconAnchor: [12, 41]
@@ -269,6 +272,7 @@ function SideBar({ selectedLocation }) {
           <div>
             <h3>Selected Location</h3>
             <strong>{selectedLocation.name}</strong>
+            <text><br></br>{selectedLocation.coordinates}</text>
           </div>
         )}
       </div>
@@ -277,18 +281,25 @@ function SideBar({ selectedLocation }) {
   );
 }
 
-function LeafletMap({ investmentLocations, rentalProperties, onLocationSelect, boundingBoxMiles }) {
+function LeafletMap({ investmentLocations = [], rentalProperties = [], onLocationSelect, boundingBoxMiles }) {
   const [boundingBox, setBoundingBox] = React.useState(null);
 
   const drawBoundingBox = (location) => {
-    const lat = location.coordinates[0];
-    const lng = location.coordinates[1];
-    const halfWidth = boundingBoxMiles / 69; // Approximate conversion from miles to degrees
-    const halfHeight = boundingBoxMiles / 69; // Approximate conversion from miles to degrees
-
+    if (!location || !location.coordinates) {
+      console.error("Invalid location or coordinates:", location);
+      return;
+    }
+  
+    const [lat, lng] = location.coordinates; // Ensure this is the correct order
+  
+    console.log("Drawing bounding box for:", lat, lng);
+  
+    const halfWidth = (boundingBoxMiles || 1) / 69;
+    const halfHeight = (boundingBoxMiles || 1) / 69;
+  
     setBoundingBox([
-      [lat + halfHeight, lng - halfWidth], // Northeast corner
-      [lat - halfHeight, lng + halfWidth]  // Southwest corner
+      [lat - halfHeight, lng - halfWidth], // Southwest corner
+      [lat + halfHeight, lng + halfWidth]  // Northeast corner
     ]);
   };
 
@@ -310,7 +321,7 @@ function LeafletMap({ investmentLocations, rentalProperties, onLocationSelect, b
             eventHandlers={{
               click: () => {
                 onLocationSelect(location);
-                drawBoundingBox(location);
+                drawBoundingBox(location); // This will now use dummy coordinates if needed
               }
             }}
           >
