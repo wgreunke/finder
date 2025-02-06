@@ -267,7 +267,30 @@ function rentalLister(rentalProperties) {
   );
 }
 
-function SideBar({ selectedLocation }) {
+function SideBar({ selectedLocation, rentalProperties, boundingBoxMiles  }) {
+//Break out the location into the bounding box so it can be used in a filter.
+
+const [filteredRentalProperties, setFilteredRentalProperties] = React.useState(rentalProperties);
+//Only show the rental properties that are within the bounding box.
+
+const updateFilteredRentalProperties = (selectedLocation, rentalProperties, boundingBoxMiles) => {
+  const latMax = selectedLocation.coordinates[0] + boundingBoxMiles;
+  const latMin = selectedLocation.coordinates[0] - boundingBoxMiles;
+  const lonMax = selectedLocation.coordinates[1] + boundingBoxMiles;
+  const lonMin = selectedLocation.coordinates[1] - boundingBoxMiles;
+
+  // Filter the rental properties that are within the bounding box.
+  const filteredProperties = rentalProperties.filter(property => {
+    const propertyLat = property.coordinates[0];
+    const propertyLon = property.coordinates[1];
+    return propertyLat >= latMin && propertyLat <= latMax && propertyLon >= lonMin && propertyLon <= lonMax;
+  });
+
+  setFilteredRentalProperties(filteredProperties); // Update the state with filtered properties
+};
+
+
+
   return (
     <div className="sidebar" style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
       <div style={{ 
@@ -285,7 +308,8 @@ function SideBar({ selectedLocation }) {
           </div>
         )}
       </div>
-      {rentalLister(rentalProperties)}
+      {rentalLister(filteredRentalProperties)}
+
     </div>
   );
 }
@@ -297,24 +321,21 @@ function LeafletMap({ investmentLocations = [], rentalProperties = [], onLocatio
 
 
 
-  const drawBoundingBox = (location) => {
-    if (!location || !location.coordinates) {
-      console.error("Invalid location or coordinates:", location);
+  const drawBoundingBox = (boxCenter) => {
+    if (!boxCenter || !boxCenter.coordinates) {
+      console.error("Invalid location or coordinates:", boxCenter);
       return;
+
     }
   
-    const [lat, lng] = location.coordinates; // Ensure this is the correct order
-  
-
-    
+    const [lat, lng] = boxCenter.coordinates; // Ensure this is the correct order
     console.log("Drawing bounding box for:", lat, lng);
   
-    const halfWidth = (boundingBoxMiles) / 69;
-    const halfHeight = (boundingBoxMiles) / 69;
+    const boxHalfWidth = (boundingBoxMiles) / 69;
+    const boxHalfHeight = (boundingBoxMiles) / 69;
   
-
-    setBoxUpperLeft([lat - halfHeight, lng - halfWidth]);
-    setBoxLowerRight([lat + halfHeight, lng + halfWidth]);
+    setBoxUpperLeft([lat - boxHalfHeight, lng - boxHalfWidth]);
+    setBoxLowerRight([lat + boxHalfHeight, lng + boxHalfWidth]);
 
   };
 
@@ -378,6 +399,10 @@ function LeafletMap({ investmentLocations = [], rentalProperties = [], onLocatio
 function App() {
   const [selectedLocation, setSelectedLocation] = React.useState(null);
 
+  const [boundingBoxMiles, setBoundingBoxMiles] = React.useState(1);
+
+
+
   return (
     <div className="App" style={{ display: 'flex', flexDirection: 'row' }}>
       <div style={{ flex: '1', margin: '10px' }}>
@@ -391,7 +416,7 @@ function App() {
         />
       </div>
       <div style={{ width: '300px' }}>
-        <SideBar selectedLocation={selectedLocation} />
+        <SideBar selectedLocation={selectedLocation} rentalProperties={rentalProperties} boundingBoxMiles={boundingBoxMiles} />
       </div>
     </div>
   );
