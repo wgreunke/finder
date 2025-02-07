@@ -118,28 +118,40 @@ const rentalProperties = [
 const investmentLocations = [
   {
     name: 'Downtown Sunnyvale (Murphy Avenue)',
-    coordinates: [37.3785, -122.0311]
+    coordinates: [37.3785, -122.0311],
+    type: 'house'
   },
   {
     name: 'Sunnyvale Public Library',
-    coordinates: [37.3686, -122.0365]
+    coordinates: [37.3686, -122.0365],
+    type: 'apartment'
   },
+
   {
     name: 'Sunnyvale Heritage Park Museum',
-    coordinates: [37.3842, -122.0184]
+    coordinates: [37.3842, -122.0184],
+    type: 'house'
   },
+
+
   {
     name: 'Sunnyvale Community Center',
-    coordinates: [37.3681, -122.0382]
+    coordinates: [37.3681, -122.0382],
+    type: 'house'
   },
+
   {
     name: 'Apple Park',
-    coordinates: [37.3349, -122.0090]
+    coordinates: [37.3349, -122.0090],
+    type: 'apartment'
   },
+
   {
     name: 'Las Palmas Park',
-    coordinates: [37.3642, -122.0280]
+    coordinates: [37.3642, -122.0280],
+    type: 'house'
   },
+
   {
     name: 'Baylands Park',
     coordinates: [37.4237, -122.0338]
@@ -193,6 +205,7 @@ const [propertyType, setPropertyType] = React.useState(filterAndFinanceData.filt
   return (
     <div style={{ textAlign: 'left' }}>
       <p>Im looking for a property:</p>
+      <h1>Investment Filter</h1>
 {/*Add a text box for lower and upper price range*/}
 <input 
   type="text" 
@@ -223,8 +236,8 @@ const [propertyType, setPropertyType] = React.useState(filterAndFinanceData.filt
 </select>
 <br></br>
 {/*Add a textbox for down payment amount.  Show the amount as currency with commas and dollar sign.   */}
+<h1>Finance Options</h1>
 <p>Down Payment Amount: </p>
-
 
 <input 
   type="text" 
@@ -272,8 +285,8 @@ function RentalLister({ filteredRentalProperties }) {
       maxHeight: '45vh',
       padding: '10px'
     }}>
-      <h2>Rental Properties</h2>
-      <p>Find the best rental properties in Sunnyvale</p>
+      <h2>Rental Comps</h2>
+      <p>The following rental properties are used to calucate the value of the target investment property.</p>
       {filteredRentalProperties.map((property, index) => (
         <div key={index}>
           <strong>{property.name}:</strong> <p><br></br>{property.monthly_rent}</p>
@@ -294,7 +307,7 @@ function SideBar({ selectedLocation, filteredRentalProperties = [] }) {
         maxHeight: '45vh',
         padding: '10px'
       }}>
-        <h2>Investment Locations</h2>
+        <h2>Target Investment </h2>
         <p>Find the best investment opportunities in Sunnyvale</p>
         {selectedLocation && (
           <div>
