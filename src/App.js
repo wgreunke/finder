@@ -265,7 +265,7 @@ const [propertyType, setPropertyType] = React.useState(filterAndFinanceData.filt
   );
 }
 
-function rentalLister(filteredRentalProperties) {
+function RentalLister({ filteredRentalProperties }) {
   return (
     <div style={{ 
       overflowY: 'auto',
@@ -276,10 +276,11 @@ function rentalLister(filteredRentalProperties) {
       <p>Find the best rental properties in Sunnyvale</p>
       {filteredRentalProperties.map((property, index) => (
         <div key={index}>
-          <strong>{property.name}:</strong> <text><br></br>{property.monthly_rent}</text>
+          <strong>{property.name}:</strong> <p><br></br>{property.monthly_rent}</p>
         </div>
       ))}
     </div>
+
   );
 }
 
@@ -303,12 +304,38 @@ function SideBar({ selectedLocation, filteredRentalProperties = [] }) {
           </div>
         )}
       </div>
-      {rentalLister(filteredRentalProperties)}
+    
+      <RentalLister filteredRentalProperties={filteredRentalProperties} />
+
+    </div>
+
+  );
+}
+
+function SideBar2({ selectedLocation, filteredRentalProperties }) {
+  return (
+    <div className="sidebar" style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ overflowY: 'auto', maxHeight: '45vh', padding: '10px' }}>
+        <h2>Investment Locations</h2>
+        <p>Find the best investment opportunities in Sunnyvale</p>
+        {selectedLocation && (
+          <div>
+            <h3>Selected Location</h3>
+            <strong>{selectedLocation.name}</strong>
+            <p><br />{selectedLocation.coordinates.join(', ')}</p>
+          </div>
+        )}
+      </div>
+      <RentalLister filteredRentalProperties={filteredRentalProperties} />
     </div>
   );
 }
 
-function LeafletMap({ investmentLocations = [], rentalProperties = [], onLocationSelect, handlePropertyClick, latMax, latMin, lonMax, lonMin}) {
+
+
+
+function LeafletMap({ investmentLocations = [], rentalProperties = [], onLocationSelect, handlePropertyClick, latHigh, latLow, lonLeft, lonRight}) {
+
 
   return (
     <MapContainer 
@@ -354,9 +381,11 @@ function LeafletMap({ investmentLocations = [], rentalProperties = [], onLocatio
       ))}
       <Rectangle 
         bounds={[
-          [latMax, lonMin], // Upper left corner
-          [latMin, lonMax] // Lower right corner (adjusted for visibility)
+          [latLow, lonLeft], // Upper left corner
+          [latHigh, lonRight] // Lower right corner (adjusted for visibility)
         ]}
+
+
 
 
         pathOptions={{ 
@@ -376,27 +405,33 @@ function App() {
   const [boundingBoxMiles, setBoundingBoxMiles] = React.useState(1); 
   //Start with all the rental properties as default
   const [filteredRentalProperties, setFilteredRentalProperties] = React.useState(rentalProperties);
-  const [latMax, setLatMax] = React.useState(mapCenter[0] + (boundingBoxMiles / 69));
-  const [latMin, setLatMin] = React.useState(mapCenter[0] - (boundingBoxMiles / 69));
-  const [lonMax, setLonMax] = React.useState(mapCenter[1] + (boundingBoxMiles / 53.0));
-  const [lonMin, setLonMin] = React.useState(mapCenter[1] - (boundingBoxMiles / 53.0));
+  const [latHigh, setLatHigh] = React.useState(mapCenter[0] + (boundingBoxMiles / 69));
+  const [latLow, setLatLow] = React.useState(mapCenter[0] - (boundingBoxMiles / 69));
+  const [lonLeft, setLonLeft] = React.useState(mapCenter[1] + (boundingBoxMiles / 53.0));
+  const [lonRight, setLonRight] = React.useState(mapCenter[1] - (boundingBoxMiles / 53.0));
+
+
 
   //When given a location, make abounding box.
   function handlePropertyClick(selectedLocation) {
-    setLatMax(selectedLocation.coordinates[0] + (boundingBoxMiles / 69));
-    setLatMin(selectedLocation.coordinates[0] - (boundingBoxMiles / 69));
-    setLonMax(selectedLocation.coordinates[1] + (boundingBoxMiles / 53.0));
-    setLonMin(selectedLocation.coordinates[1] - (boundingBoxMiles / 53.0));
+    setLatHigh(selectedLocation.coordinates[0] + (boundingBoxMiles / 69));
+    setLatLow(selectedLocation.coordinates[0] - (boundingBoxMiles / 69));
+
+    setLonLeft(selectedLocation.coordinates[1] + (boundingBoxMiles / 53.0));
+    setLonRight(selectedLocation.coordinates[1] - (boundingBoxMiles / 53.0));
     //Now filter the rental properties that are within the bounding box.
-   console.log("latMin:", latMin, "latMax:", latMax, "lonMin:", lonMin, "lonMax:", lonMax);
+
+   console.log("latLow:", latLow, "latHigh:", latHigh, "lonLeft:", lonLeft, "lonRight:", lonRight);
+
 
     setFilteredRentalProperties(rentalProperties.filter(property => {
       const propertyLat = property.coordinates[0];
       const propertyLon = property.coordinates[1];
-      return propertyLat >= latMin && propertyLat <= latMax && propertyLon >= lonMin && propertyLon <= lonMax;
+      return propertyLat >= latLow && propertyLat <= latHigh && propertyLon >= lonLeft && propertyLon <= lonRight;
     }));
     console.log("filteredProperties: from handleLocationSelect", filteredRentalProperties);
   };
+
 
   const handleLocationSelect = (location) => {
     setSelectedLocation(location);
@@ -412,14 +447,15 @@ function App() {
           rentalProperties={rentalProperties}
           onLocationSelect={handleLocationSelect}
           handlePropertyClick={handlePropertyClick}
-          latMax={latMax}
-          latMin={latMin}
-          lonMax={lonMax}
-          lonMin={lonMin}
+          latHigh={latHigh}
+          latLow={latLow}
+          lonLeft={lonLeft}
+          lonRight={lonRight}
         />
       </div>
       <div style={{ width: '300px' }}>
-        <SideBar selectedLocation={selectedLocation} rentalProperties={filteredRentalProperties} latMax={latMax} latMin={latMin} lonMax={lonMax} lonMin={lonMin} />
+
+        <SideBar selectedLocation={selectedLocation} filteredRentalProperties={filteredRentalProperties}/>
 
       </div>
     </div>
