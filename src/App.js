@@ -5,7 +5,7 @@ import L from 'leaflet';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 import React from 'react';
 
-
+ 
 
 //To start cmd: npm start
 
