@@ -206,69 +206,67 @@ const [propertyType, setPropertyType] = React.useState(filterAndFinanceData.filt
     <div style={{ textAlign: 'left' }}>
       <p>Im looking for a property:</p>
       <h1>Investment Filter</h1>
-{/*Add a text box for lower and upper price range*/}
-<input 
-  type="text" 
+{/* Add a container div for the input fields */}
+<div style={{ display: 'flex', alignItems: 'center' }}>
+  <input 
+    type="text" 
+    placeholder="Lower Price" 
+    style={{ margin: '5px' }} 
+    value={new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(filterAndFinanceData.filterOptions.defaultLowerPrice)} 
+  />
+  <input 
+    type="text" 
+    placeholder="Upper Price" 
+    style={{ margin: '5px' }} 
+    value={new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(filterAndFinanceData.filterOptions.defaultUpperPrice)} 
+  />
+  {/* Add a dropdown for property type */}
+  <p style={{ margin: '5px' }}>Property Type: </p>
+  <select 
+    style={{ margin: '5px' }} 
+    value={propertyType} 
+    onChange={(e) => setPropertyType(e.target.value)}
+  >
+    <option value="apartment">Apartment</option>
+    <option value="house">House</option>
+    <option value="commercial">Commercial</option>
+  </select>
+</div>
 
 
-  placeholder="Lower Price" 
-  style={{ margin: '5px' }} 
-  value={new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(filterAndFinanceData.filterOptions.defaultLowerPrice)} 
-/>
-<input 
-  type="text" 
-  placeholder="Upper Price" 
-  style={{ margin: '5px' }} 
-  value={new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(filterAndFinanceData.filterOptions.defaultUpperPrice)} 
-/>
-
-
-{/*Add a dropdown for property type*/}
-<p>Property Type: </p>
-<select 
-  style={{ margin: '5px' }} 
-  value={propertyType} 
-  onChange={(e) => setPropertyType(e.target.value)}
->
-  <option value="apartment">Apartment</option>
-  <option value="house">House</option>
-  <option value="commercial">Commercial</option>
-</select>
-<br></br>
-{/*Add a textbox for down payment amount.  Show the amount as currency with commas and dollar sign.   */}
+{/* Add a container div for the finance options */}
 <h1>Finance Options</h1>
-<p>Down Payment Amount: </p>
+<div style={{ display: 'flex', alignItems: 'center' }}>
+  <p style={{ margin: '5px' }}>Down Payment Amount: </p>
+  <input 
 
-<input 
-  type="text" 
-  placeholder="Down Payment Amount" 
-  style={{ margin: '5px' }} 
-  value={new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(downPayment)} 
-  onChange={(e) => setDownPayment(parseInt(e.target.value.replace(/[^0-9]/g, ''), 10) || 0)} 
-/>
+    type="text" 
+    placeholder="Down Payment Amount" 
+    style={{ margin: '5px' }} 
+    value={new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(downPayment)} 
+    onChange={(e) => setDownPayment(parseInt(e.target.value.replace(/[^0-9]/g, ''), 10) || 0)} 
+  />
+  
+  {/* Add a textbox for interest rate */}
+  <p style={{ margin: '5px' }}>Interest Rate (%): </p>
+  <input 
+    type="text" 
+    placeholder="Interest Rate" 
+    style={{ margin: '5px' }} 
+    value={filterAndFinanceData.financialOptions.defaultInterestRate} 
+    onChange={(e) => {/* Handle change here if needed */}}
+  />
 
-{/*Add a textbox for interest rate*/}
-<p>Interest Rate (%): </p>
-<input 
-  type="text" 
-  placeholder="Interest Rate" 
-  style={{ margin: '5px' }} 
-  value={filterAndFinanceData.financialOptions.defaultInterestRate} 
-  onChange={(e) => {/* Handle change here if needed */}}
-/>
-
-
-
-{/*Add a textbox for bounding box miles*/}
-<p>Bounding Box Miles: </p>
-<input 
-  type="text" 
-  placeholder="Bounding Box Miles" 
-  style={{ margin: '5px' }} 
-  value={filterAndFinanceData.financialOptions.defaultBoundingBoxMiles} 
-  onChange={(e) => {/* Handle change here if needed */}}
-/>
-<br></br>
+  {/* Add a textbox for bounding box miles */}
+  <p style={{ margin: '5px' }}>Bounding Box Miles: </p>
+  <input 
+    type="text" 
+    placeholder="Bounding Box Miles" 
+    style={{ margin: '5px' }} 
+    value={filterAndFinanceData.financialOptions.defaultBoundingBoxMiles} 
+    onChange={(e) => {/* Handle change here if needed */}}
+  />
+</div>
 
 
 
@@ -325,29 +323,10 @@ function SideBar({ selectedLocation, filteredRentalProperties = [] }) {
   );
 }
 
-function SideBar2({ selectedLocation, filteredRentalProperties }) {
-  return (
-    <div className="sidebar" style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ overflowY: 'auto', maxHeight: '45vh', padding: '10px' }}>
-        <h2>Investment Locations</h2>
-        <p>Find the best investment opportunities in Sunnyvale</p>
-        {selectedLocation && (
-          <div>
-            <h3>Selected Location</h3>
-            <strong>{selectedLocation.name}</strong>
-            <p><br />{selectedLocation.coordinates.join(', ')}</p>
-          </div>
-        )}
-      </div>
-      <RentalLister filteredRentalProperties={filteredRentalProperties} />
-    </div>
-  );
-}
 
 
+function LeafletMap({ investmentLocations = [], rentalProperties = [], onLocationSelect, handlePropertyClick, latNorth, latSouth, lonWest, lonEast}) {
 
-
-function LeafletMap({ investmentLocations = [], rentalProperties = [], onLocationSelect, handlePropertyClick, latHigh, latLow, lonLeft, lonRight}) {
 
 
   return (
@@ -394,9 +373,10 @@ function LeafletMap({ investmentLocations = [], rentalProperties = [], onLocatio
       ))}
       <Rectangle 
         bounds={[
-          [latLow, lonLeft], // Upper left corner
-          [latHigh, lonRight] // Lower right corner (adjusted for visibility)
+          [latSouth, lonWest], // Upper left corner
+          [latNorth, lonEast] // Lower right corner (adjusted for visibility)
         ]}
+
 
 
 
@@ -418,32 +398,57 @@ function App() {
   const [boundingBoxMiles, setBoundingBoxMiles] = React.useState(1); 
   //Start with all the rental properties as default
   const [filteredRentalProperties, setFilteredRentalProperties] = React.useState(rentalProperties);
-  const [latHigh, setLatHigh] = React.useState(mapCenter[0] + (boundingBoxMiles / 69));
-  const [latLow, setLatLow] = React.useState(mapCenter[0] - (boundingBoxMiles / 69));
-  const [lonLeft, setLonLeft] = React.useState(mapCenter[1] + (boundingBoxMiles / 53.0));
-  const [lonRight, setLonRight] = React.useState(mapCenter[1] - (boundingBoxMiles / 53.0));
-
+  const [latNorth, setLatNorth] = React.useState(mapCenter[0] + (boundingBoxMiles / 69));
+  const [latSouth, setLatSouth] = React.useState(mapCenter[0] - (boundingBoxMiles / 69));
+  const [lonWest, setLonWest] = React.useState(mapCenter[1] - (boundingBoxMiles / 53.0));
+  const [lonEast, setLonEast] = React.useState(mapCenter[1] + (boundingBoxMiles / 53.0));
 
 
   //When given a location, make abounding box.
   function handlePropertyClick(selectedLocation) {
-    setLatHigh(selectedLocation.coordinates[0] + (boundingBoxMiles / 69));
-    setLatLow(selectedLocation.coordinates[0] - (boundingBoxMiles / 69));
+    setLatNorth(selectedLocation.coordinates[0] + (boundingBoxMiles / 69));
+    setLatSouth(selectedLocation.coordinates[0] - (boundingBoxMiles / 69));
 
-    setLonLeft(selectedLocation.coordinates[1] + (boundingBoxMiles / 53.0));
-    setLonRight(selectedLocation.coordinates[1] - (boundingBoxMiles / 53.0));
+    setLonWest(selectedLocation.coordinates[1] - (boundingBoxMiles / 53.0));
+    setLonEast(selectedLocation.coordinates[1] + (boundingBoxMiles / 53.0));
     //Now filter the rental properties that are within the bounding box.
 
-   console.log("latLow:", latLow, "latHigh:", latHigh, "lonLeft:", lonLeft, "lonRight:", lonRight);
+   console.log("latNorth:", latNorth, "latSouth:", latSouth, "lonWest:", lonWest, "lonEast:", lonEast);
+
 
 
     setFilteredRentalProperties(rentalProperties.filter(property => {
       const propertyLat = property.coordinates[0];
       const propertyLon = property.coordinates[1];
-      return propertyLat >= latLow && propertyLat <= latHigh && propertyLon >= lonLeft && propertyLon <= lonRight;
+      return propertyLat >= latSouth && propertyLat <= latNorth && propertyLon >= lonWest && propertyLon <= lonEast;
     }));
     console.log("filteredProperties: from handleLocationSelect", filteredRentalProperties);
+
   };
+
+  function handlePropertyClick2(selectedLocation) {
+    const latNorth = selectedLocation.coordinates[0] + (boundingBoxMiles / 69);
+    const latSouth = selectedLocation.coordinates[0] - (boundingBoxMiles / 69);
+    const lonWest = selectedLocation.coordinates[1] - (boundingBoxMiles / 53.0);
+    const lonEast = selectedLocation.coordinates[1] + (boundingBoxMiles / 53.0);
+
+    console.log("latNorth:", latNorth, "latSouth:", latSouth, "lonWest:", lonWest, "lonEast:", lonEast);
+
+    const filteredProperties = rentalProperties.filter(property => {
+        const propertyLat = property.coordinates[0];
+        const propertyLon = property.coordinates[1];
+        return propertyLat >= latSouth && propertyLat <= latNorth &&
+               propertyLon >= lonWest && propertyLon <= lonEast;
+    });
+
+    setFilteredRentalProperties(filteredProperties);
+    console.log("filteredProperties:", filteredProperties);
+};
+
+
+
+
+
 
 
   const handleLocationSelect = (location) => {
@@ -460,17 +465,34 @@ function App() {
           rentalProperties={rentalProperties}
           onLocationSelect={handleLocationSelect}
           handlePropertyClick={handlePropertyClick}
-          latHigh={latHigh}
-          latLow={latLow}
-          lonLeft={lonLeft}
-          lonRight={lonRight}
+          latNorth={latNorth}
+          latSouth={latSouth}
+          lonWest={lonWest}
+          lonEast={lonEast}
         />
+<h2>Debugging</h2>
+      <h3>latNorth: {latNorth}</h3>
+      <h3>latSouth: {latSouth}</h3>
+      <h3>lonWest: {lonWest}</h3>
+      <h3>lonEast: {lonEast}</h3>
+
+
+      {filteredRentalProperties.map((property, index) => (
+        <p key={index}>{property.name} {property.coordinates}</p>
+
+
+      ))}
+
+
       </div>
+      
       <div style={{ width: '300px' }}>
 
         <SideBar selectedLocation={selectedLocation} filteredRentalProperties={filteredRentalProperties}/>
 
       </div>
+
+
     </div>
   );
 }
