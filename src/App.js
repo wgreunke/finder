@@ -405,45 +405,31 @@ function App() {
 
 
   //When given a location, make abounding box.
+  //Caution, There be dragons here.  I was clicking on the map and it was not updating the bounding box.
+  //Just because you set LatNorth and other values, does not mean they were availible for use right away.
+  //Using temp values to make sure the filter works.
   function handlePropertyClick(selectedLocation) {
-    setLatNorth(selectedLocation.coordinates[0] + (boundingBoxMiles / 69));
-    setLatSouth(selectedLocation.coordinates[0] - (boundingBoxMiles / 69));
+    const newLatNorth = selectedLocation.coordinates[0] + (boundingBoxMiles / 69);
+    const newLatSouth = selectedLocation.coordinates[0] - (boundingBoxMiles / 69);
+    const newLonWest = selectedLocation.coordinates[1] - (boundingBoxMiles / 53.0);
+    const newLonEast = selectedLocation.coordinates[1] + (boundingBoxMiles / 53.0);
 
-    setLonWest(selectedLocation.coordinates[1] - (boundingBoxMiles / 53.0));
-    setLonEast(selectedLocation.coordinates[1] + (boundingBoxMiles / 53.0));
-    //Now filter the rental properties that are within the bounding box.
+    // Now filter the rental properties that are within the bounding box.
+    console.log("latNorth:", newLatNorth, "latSouth:", newLatSouth, "lonWest:", newLonWest, "lonEast:", newLonEast);
 
-   console.log("latNorth:", latNorth, "latSouth:", latSouth, "lonWest:", lonWest, "lonEast:", lonEast);
-
-
+    setLatNorth(newLatNorth);
+    setLatSouth(newLatSouth);
+    setLonWest(newLonWest);
+    setLonEast(newLonEast);
 
     setFilteredRentalProperties(rentalProperties.filter(property => {
       const propertyLat = property.coordinates[0];
       const propertyLon = property.coordinates[1];
-      return propertyLat >= latSouth && propertyLat <= latNorth && propertyLon >= lonWest && propertyLon <= lonEast;
+      return propertyLat >= newLatSouth && propertyLat <= newLatNorth && propertyLon >= newLonWest && propertyLon <= newLonEast;
     }));
-    console.log("filteredProperties: from handleLocationSelect", filteredRentalProperties);
 
+    console.log("filteredProperties: from handleLocationSelect", rentalProperties);
   };
-
-  function handlePropertyClick2(selectedLocation) {
-    const latNorth = selectedLocation.coordinates[0] + (boundingBoxMiles / 69);
-    const latSouth = selectedLocation.coordinates[0] - (boundingBoxMiles / 69);
-    const lonWest = selectedLocation.coordinates[1] - (boundingBoxMiles / 53.0);
-    const lonEast = selectedLocation.coordinates[1] + (boundingBoxMiles / 53.0);
-
-    console.log("latNorth:", latNorth, "latSouth:", latSouth, "lonWest:", lonWest, "lonEast:", lonEast);
-
-    const filteredProperties = rentalProperties.filter(property => {
-        const propertyLat = property.coordinates[0];
-        const propertyLon = property.coordinates[1];
-        return propertyLat >= latSouth && propertyLat <= latNorth &&
-               propertyLon >= lonWest && propertyLon <= lonEast;
-    });
-
-    setFilteredRentalProperties(filteredProperties);
-    console.log("filteredProperties:", filteredProperties);
-};
 
 
 
