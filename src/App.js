@@ -4,8 +4,8 @@ import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 import React from 'react';
+  
 
- 
 
 //To start cmd: npm start
 
@@ -390,7 +390,23 @@ function LeafletMap({ investmentLocations = [], rentalProperties = [], onLocatio
   );
 }
 
-//************************ Main App Component  ***************************************************
+function InvestmentComparsion({ tempa, tempb }) {
+  // This function calculates the investment comparison between two properties.
+  // It takes two objects as arguments, each representing a property.
+  // The function returns an object containing the calculated values.
+  
+  tempa = Number(tempa);
+  tempb = Number(tempb);
+
+  return (
+      <div>
+          <h1>Debug for investment comparison</h1>
+          <p>Sum of tempa and tempb: {tempa + tempb}</p>
+      </div>
+  );
+}
+
+//************************ Main App Component  ***********************************
 
 function App() {
   const mapCenter = [37.3785, -122.0311];  //This is the center of the map on startup
@@ -433,10 +449,6 @@ function App() {
 
 
 
-
-
-
-
   const handleLocationSelect = (location) => {
     setSelectedLocation(location);
   };
@@ -456,6 +468,9 @@ function App() {
           lonWest={lonWest}
           lonEast={lonEast}
         />
+<InvestmentComparsion tempa={1} tempb={2} />
+
+
 <h2>Debugging</h2>
       <h3>latNorth: {latNorth}</h3>
       <h3>latSouth: {latSouth}</h3>
@@ -465,10 +480,7 @@ function App() {
 
       {filteredRentalProperties.map((property, index) => (
         <p key={index}>{property.name} {property.coordinates}</p>
-
-
       ))}
-
 
       </div>
       
