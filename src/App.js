@@ -36,142 +36,212 @@ const rentalProperties = [
   {
     name: '456 S Murphy Ave',
     coordinates: [37.3785, -122.0311],
-    monthly_rent: '$1,500'
+    monthly_rent: '$1,500',
+    square_feet: 1500
   },
+
   {
     name: '789 Fair Oaks Ave',
     coordinates: [37.3898, -122.0156],
-    monthly_rent: '$1,200'
+    monthly_rent: '$1,200',
+    square_feet: 1200
   },
+
   {
     name: '123 Reed Ave',
     coordinates: [37.3836, -122.0109],
-    monthly_rent: '$1,000'
+    monthly_rent: '$1,000',
+    square_feet: 1000
+
   },
   {
     name: '567 W Washington Ave',
     coordinates: [37.3708, -122.0415],
-    monthly_rent: '$1,000'
+    monthly_rent: '$1,000',
+    square_feet: 1000
+
   },
   {
     name: '890 E Fremont Ave',
     coordinates: [37.3905, -122.0212],
-    monthly_rent: '$1,000'
+    monthly_rent: '$1,000',
+    square_feet: 1000
+
   },
   {
     name: '234 Maude Ave',
     coordinates: [37.4015, -122.0362],
-    monthly_rent: '$1,000'
+    monthly_rent: '$1,000',
+    square_feet: 1400
   },
   {
     name: '678 S Mathilda Ave',
     coordinates: [37.3786, -122.0304],
-    monthly_rent: '$3,500'
+    monthly_rent: '$3,500',
+    square_feet: 4100
   },
+
   {
     name: '901 W El Camino Real',
     coordinates: [37.3717, -122.0372],
-    monthly_rent: '$2,800'
+    monthly_rent: '$2,800',
+    square_feet: 3300
   },
+
   {
     name: '345 Sunnyvale Saratoga Rd',
     coordinates: [37.3638, -122.0355],
-    monthly_rent: '$2,500'
+    monthly_rent: '$2,500',
+    square_feet: 3200
   },
+
   {
     name: '789 Hollenbeck Ave',
     coordinates: [37.3472, -122.0573],
-    monthly_rent: '$3,200'
+    monthly_rent: '$3,200',
+    square_feet: 3700
   },
+
   {
     name: '123 S Frances St',
     coordinates: [37.3781, -122.0305],
-    monthly_rent: '$4,500'
+    monthly_rent: '$4,500',
+    square_feet: 1700
   },
+
   {
     name: '456 Lawrence Expressway',
     coordinates: [37.3700, -121.9966],
-    monthly_rent: '$3,800'
+    monthly_rent: '$3,800',
+    square_feet: 2000
   },
+
   {
     name: '890 E Evelyn Ave',
     coordinates: [37.3943, -122.0246],
-    monthly_rent: '$2,900'
+    monthly_rent: '$2,900',
+    square_feet: 1800
   },
+
   {
     name: '234 Innovation Way',
     coordinates: [37.3957, -122.0323],
-    monthly_rent: '$4,800'
+    monthly_rent: '$4,800',
+    square_feet: 2400
   },
+
   {
     name: '567 N Mary Ave',
     coordinates: [37.3986, -122.0315],
-    monthly_rent: '$4,200'
+    monthly_rent: '$4,200',
+    square_feet: 1800
   },
+
   {
     name: '789 Persian Dr',
     coordinates: [37.3709, -121.9639],
-    monthly_rent: '$3,900'
+    monthly_rent: '$3,900',
+    square_feet: 1900
   }
+
 ];
 
 const investmentLocations = [
   {
     name: 'Downtown Sunnyvale (Murphy Avenue)',
     coordinates: [37.3785, -122.0311],
-    type: 'house'
+    type: 'house',
+    square_feet: 1500,
+    price: 1700000
   },
+
+
+
   {
     name: 'Sunnyvale Public Library',
     coordinates: [37.3686, -122.0365],
-    type: 'apartment'
+    type: 'apartment',
+    square_feet: 1200,
+    price: 1200000
   },
+
+
 
   {
     name: 'Sunnyvale Heritage Park Museum',
     coordinates: [37.3842, -122.0184],
-    type: 'house'
+    type: 'house',
+    square_feet: 1500,
+    price: 1500000
   },
+
 
 
   {
     name: 'Sunnyvale Community Center',
     coordinates: [37.3681, -122.0382],
-    type: 'house'
+    type: 'house',
+    square_feet: 1500,
+    price: 1300000
   },
+
 
   {
     name: 'Apple Park',
     coordinates: [37.3349, -122.0090],
-    type: 'apartment'
+    type: 'apartment',
+    square_feet: 1800,
+    price: 1900000
   },
+
 
   {
     name: 'Las Palmas Park',
     coordinates: [37.3642, -122.0280],
-    type: 'house'
+    type: 'house',
+    square_feet: 1500,
+    price: 1400000
   },
+
 
   {
     name: 'Baylands Park',
-    coordinates: [37.4237, -122.0338]
-  },
+    coordinates: [37.4237, -122.0338],
+    type: 'house',
+    square_feet: 1500,
+    price: 1400000
+  },  
+
   {
     name: 'Ortega Park',
-    coordinates: [37.3515, -122.0501]
+    coordinates: [37.3515, -122.0501],
+    type: 'house',
+    square_feet: 1500,
+    price: 1400000
+
   },
+
   {
     name: 'Sunnyvale Caltrain Station',
-    coordinates: [37.3781, -122.0319]
+    coordinates: [37.3781, -122.0319],
+    type: 'house',
+    square_feet: 1500,
+    price: 1732000
   },
+
   {
     name: 'Twin Creeks Sports Complex',
-    coordinates: [37.4106, -121.9967]
+    coordinates: [37.4106, -121.9967],
+    type: 'house',
+    square_feet: 1500,
+    price: 1400000
   }
 ];
 
 
+
 //This is at the top of the page and will be used to set filter and finance options
+
 function FilterAndFinanceOptions() {
 //This is carries the filter and finance options that will be pulled in at the top of the page
 const filterAndFinanceData = {
@@ -390,18 +460,39 @@ function LeafletMap({ investmentLocations = [], rentalProperties = [], onLocatio
   );
 }
 
-function InvestmentComparsion({ tempa, tempb }) {
+function InvestmentComparsion({ rentalProperties, investmentLocations, tempa, tempb }) {
   // This function calculates the investment comparison between two properties.
   // It takes two objects as arguments, each representing a property.
   // The function returns an object containing the calculated values.
   
+//Assume a price of 200 per square foot.
+//for each rental property, calculate the price based on the square footage.
+
+
+
+
+
+
+
+
+
   tempa = Number(tempa);
   tempb = Number(tempb);
 
   return (
       <div>
+          
           <h1>Debug for investment comparison</h1>
-          <p>Sum of tempa and tempb: {tempa + tempb}</p>
+          {/* List investment locations with price and square footage */}
+          {investmentLocations.map((location, index) => (
+            <div key={index}>
+              <strong>{location.name}</strong>: 
+              <p>Price: {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(location.price)}</p>
+              <p>Square Feet: {location.square_feet}</p>
+            </div>
+          ))}
+
+
       </div>
   );
 }
@@ -468,10 +559,11 @@ function App() {
           lonWest={lonWest}
           lonEast={lonEast}
         />
-<InvestmentComparsion tempa={1} tempb={2} />
+<InvestmentComparsion rentalProperties={rentalProperties} investmentLocations={investmentLocations} tempa={1} tempb={2} />
 
 
-<h2>Debugging</h2>
+
+<h2>***********Debugging***********</h2>
       <h3>latNorth: {latNorth}</h3>
       <h3>latSouth: {latSouth}</h3>
       <h3>lonWest: {lonWest}</h3>
